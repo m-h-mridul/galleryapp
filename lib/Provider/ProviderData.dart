@@ -1,7 +1,15 @@
 import 'package:flutter/widgets.dart';
-import 'package:sqflite/sqflite.dart';
 
 class ProviderData extends ChangeNotifier {
+  Future<bool>? _ans;
+
+  Future<bool>? get ans => _ans;
+
+  set ans(Future<bool>? value) {
+    _ans = value;
+    notifyListeners();
+  }
+
   List<dynamic>? _albumData;
 
   List<dynamic>? get albumData => _albumData;

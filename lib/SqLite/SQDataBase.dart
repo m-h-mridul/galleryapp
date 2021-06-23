@@ -1,3 +1,4 @@
+import 'package:galleryapp/DataModel/AlbumModel.dart';
 import 'package:galleryapp/DataModel/ImageModel.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -8,20 +9,34 @@ class SQDataBase {
 
   SQDataBase._();
 
-  Future<Database?> get database async {
-    if (_database != null) {
-      return _database;
+  database() async {
+    if (_database == null) {
+      _database = await creatDb();
+      print(_database.toString());
     }
-    _database = await creatDb();
-    return _database;
   }
 
-  creatDb() async {
+  get cheakdataBase async {
+    if (_database != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<Database> creatDb() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, 'albumData.db');
+    String path = join(databasesPath, 'gallery.db');
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       final table = '''
+          CREATE TABLE ${AlbumModelData.tableName}(
+          ${AlbumModelData.userId} INTEGER NOT NULL,
+          ${AlbumModelData.id} INTEGER NOT NULL, 
+          ${AlbumModelData.title} TEXT NOT NULL
+          )
+          ''';
+      final table2= '''
           CREATE TABLE ${ImageModelData.tablename}(
           ${ImageModelData.albumId} INTEGER NOT NULL,
           ${ImageModelData.id} INTEGER NOT NULL, 
@@ -30,39 +45,49 @@ class SQDataBase {
           ${ImageModelData.url} TEXT NOT NULL
           )
           ''';
-      //'CREATE TABLE Test (id INTEGER PRIMARY KEY, name TEXT, value INTEGER, num REAL)'
+      
       await db.execute(table);
+      await db.execute(table2);
+      // ignore: unnecessary_statements
+      //db;
     });
   }
 
   imageAddDb(ImageModel values) async {
-    final db = await database;
     try {
-      await db!.transaction((txn) => txn.insert(
+      var batch = _database!.batch();
+      batch.insert(
         ImageModelData.tablename,
         values.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      ));
-      Future.delayed(Duration(seconds: 1));
+      );
     } catch (e) {
-      print('Error find store time' + e.toString());
+      print('ImageModel Error is ' + e.toString());
     }
   }
 
+  // ignore: non_constant_identifier_names
+  listdataAddDb(Avalues) async {
+    try {
+      var batch = _database!.batch();
+      batch.insert(
+        AlbumModelData.tableName,
+        Avalues.toJson(),
+      );
+    } catch (e) {
+      print('AlbumModel Error is ' + e.toString());
+    }
+  }
+
+  // ignore: non_constant_identifier_names
   Future<List<Map<String, dynamic>>> Imagedataget() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps =await db!.transaction((txn)=>txn.query(ImageModelData.tablename));
-    print('Get data ans '+maps[0][ImageModelData.title].toString());
-    return maps;
-    // return  List.generate(maps.length, (i) {
-    //   print("get data from sql");
-    //   print(maps[i][ImageModelData.id].toString());
-    //   return ImageModel(
-    //     id: maps[i][ImageModelData.id],
-    //     title: maps[i][ImageModelData.title],
-    //     url: maps[i][ImageModelData.url],
-    //     thumbnailUrl: maps[i][ImageModelData.thumbnailUrl],
-    //   );
-    // }).toList();
+    var d = await _database!.query(ImageModelData.tablename);
+     print('Image data '+d.toString());
+    return d;
+  }
+
+  Future<List<Map<String, dynamic>>> listdataget() async {
+    var d = await _database!.query(AlbumModelData.tableName);
+    print('List data '+d.toString());
+    return d;
   }
 }
