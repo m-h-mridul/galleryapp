@@ -14,7 +14,7 @@ class _ImageShowState extends State<ImageShow> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: SQDataBase.sqDataBase.Imagedataget(),
+        future: SQDataBase.sqDataBase.Imagedataget,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData)
             return Center(

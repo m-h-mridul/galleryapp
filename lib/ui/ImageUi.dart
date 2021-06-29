@@ -11,10 +11,11 @@ class Grideview extends StatefulWidget {
 }
 
 class _GrideviewState extends State<Grideview> {
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: SQDataBase.sqDataBase.Imagedataget(),
+        future:SQDataBase.sqDataBase.Imagedataget,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData)
             return Center(
@@ -37,7 +38,6 @@ class _GrideviewState extends State<Grideview> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 4.0,
                   mainAxisSpacing: 4.0),
-
               itemBuilder: (BuildContext context, int index) {
                 String thumbnaiUrl = snapshot.data[index]
                         [ImageModelData.thumbnailUrl]

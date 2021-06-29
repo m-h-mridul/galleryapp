@@ -6,17 +6,16 @@ import 'package:galleryapp/SqLite/SQDataBase.dart';
 // ignore: camel_case_types
 class listShow extends StatelessWidget {
   const listShow({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: SQDataBase.sqDataBase.listdataget(),
+        future: SQDataBase.sqDataBase.Listdataget,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(),
             );
-          else
+          } else {
             return ListView.builder(
                 padding: const EdgeInsets.all(8),
                 itemCount: snapshot.data.length,
@@ -37,6 +36,7 @@ class listShow extends StatelessWidget {
                     ),
                   );
                 });
+          }
         });
   }
 }

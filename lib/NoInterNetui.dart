@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -7,13 +6,11 @@ class NOwifi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
+    return SafeArea(
+      child: Center(
         child: Text(
           'connected with mobile or wifi network',
-          style: TextStyle(
-            fontSize: 20
-          ),
+          style: TextStyle(fontSize: 20),
         ),
       ),
     );

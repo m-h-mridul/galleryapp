@@ -9,20 +9,16 @@ class SQDataBase {
 
   SQDataBase._();
 
-  database() async {
+ Future<Database?> get database async {
+    //print('database creat method call ');
     if (_database == null) {
+    //  print('creatdb called');
       _database = await creatDb();
-      print(_database.toString());
+      return _database;
     }
+    return _database;
   }
 
-  get cheakdataBase async {
-    if (_database != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   Future<Database> creatDb() async {
     var databasesPath = await getDatabasesPath();
@@ -36,7 +32,7 @@ class SQDataBase {
           ${AlbumModelData.title} TEXT NOT NULL
           )
           ''';
-      final table2= '''
+      final table2 = '''
           CREATE TABLE ${ImageModelData.tablename}(
           ${ImageModelData.albumId} INTEGER NOT NULL,
           ${ImageModelData.id} INTEGER NOT NULL, 
@@ -45,49 +41,50 @@ class SQDataBase {
           ${ImageModelData.url} TEXT NOT NULL
           )
           ''';
-      
+
       await db.execute(table);
       await db.execute(table2);
-      // ignore: unnecessary_statements
-      //db;
     });
   }
 
   imageAddDb(ImageModel values) async {
     try {
-      var batch = _database!.batch();
-      batch.insert(
+      final batch = await database;
+      batch?.batch().insert(
         ImageModelData.tablename,
         values.toJson(),
       );
+      //print('image  add ' + values.id.toString());
     } catch (e) {
       print('ImageModel Error is ' + e.toString());
     }
   }
 
   // ignore: non_constant_identifier_names
-  listdataAddDb(Avalues) async {
+  listdataAddDb(AlbumModel Avalues) async {
     try {
-      var batch = _database!.batch();
-      batch.insert(
+      var batch = await database;
+      batch?.batch().insert(
         AlbumModelData.tableName,
         Avalues.toJson(),
       );
+      // print('List item add '+ Avalues.id.toString());
     } catch (e) {
       print('AlbumModel Error is ' + e.toString());
     }
   }
 
   // ignore: non_constant_identifier_names
-  Future<List<Map<String, dynamic>>> Imagedataget() async {
-    var d = await _database!.query(ImageModelData.tablename);
-     print('Image data '+d.toString());
-    return d;
+  Future<List<Map<String, dynamic>>> get Imagedataget async {
+    var db=await database;
+    var list=await db!.query(ImageModelData.tablename);
+    print(list);
+    return list;
   }
 
-  Future<List<Map<String, dynamic>>> listdataget() async {
-    var d = await _database!.query(AlbumModelData.tableName);
-    print('List data '+d.toString());
-    return d;
+  // ignore: non_constant_identifier_names
+  Future<List<Map<String, dynamic>>> get Listdataget async{
+    return  await _database!.query(AlbumModelData.tableName);
   }
+      
 }
