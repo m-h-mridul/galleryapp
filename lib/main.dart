@@ -1,22 +1,29 @@
+import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:galleryapp/ui/home.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'DataModel/AlbumModel.dart';
 import 'DataModel/ImageModel.dart';
 import 'Provider/ProviderData.dart';
-import 'SqLite/SQDataBase.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SQDataBase.sqDataBase.database;
-  Future.delayed(Duration(minutes: 1));
-  widgetreturn();
+
+  ///SQDataBase.sqDataBase.database;
+  Directory directory = await getApplicationDocumentsDirectory();
+  print('directory ' + directory.toString());
+  Hive.init(directory.path);
+  Widget ans = await widgetreturn();
+  await Future.delayed(Duration(seconds: 5));
   runApp(MultiProvider(
     providers: [ChangeNotifierProvider(create: (_) => ProviderData())],
-    child: MaterialApp(
-        debugShowCheckedModeBanner: false, home: MyHomePage(title: 'Gallery')),
+    child: MaterialApp(debugShowCheckedModeBanner: false, home: ans),
   ));
 }
 
@@ -35,23 +42,13 @@ Future<bool> get connectivityCheak async {
 // ignore: non_constant_identifier_names
 ImageData() async {
   try {
+    final box = await Hive.openBox('Image');
     var response =
         await Dio().get('https://jsonplaceholder.typicode.com/photos');
     if (response.statusCode == 200) {
       return (await response.data as List).map((e) async {
-        // Uri myUri = Uri.parse(e[ImageModelData.thumbnailUrl]);
-        // var image = await get(myUri);
-        // print(image.body);
-        // var bytes = image.bodyBytes;
-        //print(e);
-        //print("Image data add in dio ");
-        ImageModel i = ImageModel(
-            id: e[ImageModelData.id],
-            albumId: e[ImageModelData.albumId],
-            title: e[ImageModelData.title],
-            thumbnailUrl: e[ImageModelData.thumbnailUrl],
-            url: e[ImageModelData.url]);
-        SQDataBase.sqDataBase.imageAddDb(i);
+        ImageModel i = ImageModel.maptoimagemodel(e);
+        box.add(i.toMap());
       }).toList();
     }
   } catch (e) {
@@ -62,17 +59,14 @@ ImageData() async {
 // ignore: non_constant_identifier_names
 AlbumData() async {
   try {
+    final box = await Hive.openBox('albume');
     var response =
         await Dio().get('https://jsonplaceholder.typicode.com/albums');
     if (response.statusCode == 200) {
       return (await response.data as List).map((e) async {
         // print("AlbumData add in dio ");
-        AlbumModel albumData = AlbumModel(
-          id: e[AlbumModelData.id],
-          title: e[AlbumModelData.title],
-          userId: e[AlbumModelData.userId],
-        );
-        SQDataBase.sqDataBase.listdataAddDb(albumData);
+        AlbumModel albumData = AlbumModel.maptoalbummodel(e);
+        box.add(albumData.toMap());
       }).toList();
     }
   } catch (e) {
@@ -80,27 +74,25 @@ AlbumData() async {
   }
 }
 
-///
-///AnimatedContainer(
-//
-//       duration: Duration(seconds: 4), color: Colors.green[300])
-///
 widgetreturn() async {
-  var imagedata = await SQDataBase.sqDataBase.Imagedataget;
-  var listData = await SQDataBase.sqDataBase.Listdataget;
-  print('get data ' + imagedata.toString());
-  bool ans = await connectivityCheak;
+  print('working start');
+  bool bans = await connectivityCheak;
   try {
-    // ignore: unnecessary_null_comparison
-    if (imagedata.toString().length < 10 && listData.toString().length < 20) {
-      if (ans) {
-        await AlbumData();
-        await ImageData();
-        print('Connnection cheak');
-        return true;
-      } else {
-        return false;
-      }
+    if (bans) {
+      await AlbumData();
+      await ImageData();
+      print('Connnection cheak');
+      return MyHomePage(
+        title: 'Gallery',
+        ans: false,
+      );
+    }else{
+      await Hive.openBox('albume');
+      await Hive.openBox('Image');
+      return MyHomePage(
+        title: 'Gallery',
+        ans: true,
+      );
     }
   } catch (e) {
     print('Problem that is in cheak ui ' + e.toString());

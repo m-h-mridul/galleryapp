@@ -1,25 +1,34 @@
+import 'package:hive/hive.dart';
+//part 'AlbumModel.g.dart';
 
+
+@HiveType(typeId: 0)
 class AlbumModel {
-  int ?userId;
-  int ?id;
-  String ?title;
+  @HiveField(0)
+  int? userId;
+  @HiveField(1)
+  int? id;
+  @HiveField(2)
+  String? title;
 
-  AlbumModel({required this.userId, required this.id, required this.title});
+   AlbumModel({required this.userId, required this.id, required this.title});
 
-  factory AlbumModel.fromJson(Map<String, dynamic> jsonMake) => AlbumModel(
-        id: jsonMake['id'],
-        userId: jsonMake['userId'],
-        title: jsonMake['title'],
+  factory AlbumModel.maptoalbummodel(Map<dynamic, dynamic> jsonMake) {
+    return AlbumModel(
+        id: jsonMake[AlbumModelData.id],
+        userId: jsonMake[AlbumModelData.userId],
+        title: jsonMake[AlbumModelData.title],
       );
+  }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {'userId': this.userId, 'id': this.id, 'title': this.title};
   }
 }
 
 class AlbumModelData {
-  static String tableName = 'listdata';
-  static String userId = 'userId';
-  static String id = 'id';
-  static String title = 'title';
+  static final String tableName = 'listdata';
+  static final String userId = 'userId';
+  static final String id = 'id';
+  static final String title = 'title';
 }

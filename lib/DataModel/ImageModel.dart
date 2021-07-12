@@ -1,17 +1,24 @@
 
+import 'package:hive/hive.dart';
+//flutter packages pub run build_runner build
+//part 'ImageModel.g.dart';
 
-class ImageModel {
+@HiveType(typeId: 1)
+class ImageModel extends HiveObject {
+  @HiveField(0)
   int? albumId;
+  @HiveField(1)
   int? id;
+  @HiveField(2)
   String? title;
+  @HiveField(3)
   String? url;
+  @HiveField(4)
   String? thumbnailUrl;
-
 
   ImageModel({this.albumId, this.id, this.title, this.url, this.thumbnailUrl});
 
-  factory ImageModel.fromJson(Map<String, dynamic> json) =>
-      ImageModel(
+  factory ImageModel.maptoimagemodel(Map<dynamic, dynamic> json) => ImageModel(
         albumId: json['albumId'],
         id: json['id'],
         title: json['title'],
@@ -19,21 +26,22 @@ class ImageModel {
         thumbnailUrl: json['thumbnailUrl'],
       );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'albumId': this.albumId,
-      'id': this.id,
-      'title': this.title,
-      'url': this.url,
-      'thumbnailUrl': this.thumbnailUrl
-    };
-  }
+  Map<String, dynamic> toMap() => {
+        'albumId': this.albumId,
+        'id': this.id,
+        'title': this.title,
+        'url': this.url,
+        'thumbnailUrl': this.thumbnailUrl
+      };
+
+  
 }
-class ImageModelData{
-  static String albumId='albumId';
-  static String id='id';
-  static String title='title';
-  static String url='url';
-  static String thumbnailUrl='thumbnailUrl';
-  static String tablename='imagedata';
+
+class ImageModelData {
+  static final String albumId = 'albumId';
+  static final String id = 'id';
+  static final String title = 'title';
+  static final String url = 'url';
+  static final String thumbnailUrl = 'thumbnailUrl';
+  static final String tablename = 'imagedata';
 }

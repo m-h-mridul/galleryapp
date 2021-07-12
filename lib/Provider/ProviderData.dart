@@ -1,15 +1,6 @@
 import 'package:flutter/widgets.dart';
 
 class ProviderData extends ChangeNotifier {
-  Future<bool>? _ans;
-
-  Future<bool>? get ans => _ans;
-
-  set ans(Future<bool>? value) {
-    _ans = value;
-    notifyListeners();
-  }
-
   int? _pageSet = 0;
 
   int? get pageSet => _pageSet;
@@ -17,5 +8,13 @@ class ProviderData extends ChangeNotifier {
   set pageSet(int? value) {
     _pageSet = value;
     notifyListeners();
+  }
+  bool? _cheakInternet;
+  // ignore: unnecessary_getters_setters
+  bool? get cheakInternet => _cheakInternet;
+
+  // ignore: unnecessary_getters_setters
+  set cheakInternet(bool? value)  {
+    _cheakInternet = value;
   }
 }

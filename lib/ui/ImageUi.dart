@@ -1,71 +1,68 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:galleryapp/DataModel/ImageModel.dart';
-import 'package:galleryapp/SqLite/SQDataBase.dart';
+import 'package:galleryapp/Provider/ProviderData.dart';
+import 'package:galleryapp/ui/PicListView.dart';
+import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
+
+import 'NoInternet.dart';
 
 class Grideview extends StatefulWidget {
-  const Grideview({Key? key}) : super(key: key);
+  Grideview({Key? key}) : super(key: key);
 
   @override
   _GrideviewState createState() => _GrideviewState();
 }
 
 class _GrideviewState extends State<Grideview> {
-
-  @override
+  final box = Hive.box('Image');
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future:SQDataBase.sqDataBase.Imagedataget,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData)
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          else if (snapshot.hasError) {
-            return Center(
-                child: Text(
-              snapshot.hasError.toString(),
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ));
-          } else {
-            return GridView.builder(
-              primary: false,
-              padding: const EdgeInsets.all(10),
-              itemCount: snapshot.data.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 4.0,
-                  mainAxisSpacing: 4.0),
-              itemBuilder: (BuildContext context, int index) {
-                String thumbnaiUrl = snapshot.data[index]
-                        [ImageModelData.thumbnailUrl]
-                    .toString();
-                //provider.imageData![index]['thumbnailUrl'].toString();
-                String id = snapshot.data[index][ImageModelData.id].toString();
-                //provider.imageData![index]['id'].toString();
-                String title =
-                    snapshot.data[index][ImageModelData.title].toString();
-                String uri =
-                    snapshot.data[index][ImageModelData.url].toString();
-                //provider.imageData![index]['title'].toString();
-                return Card(
-                  color: Colors.green,
-                  child: Column(
-                    children: [
-                      ///Flexible(flex:2,child: Image.network(thumbnaiUrl)),
-                      Text(id + ' ' + title),
-                      Text(uri),
-                      Text(thumbnaiUrl),
-                      // Image.memory(base64Decode(thumbnaiUrl),
-                      //     fit: BoxFit.fill,),
-                    ],
+    final provider = Provider.of<ProviderData>(context);
+    //  print("cheak Intertnet "+provider.cheakInternet.toString());
+    return GridView.builder(
+      shrinkWrap: true,
+      padding: const EdgeInsets.all(10),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        //crossAxisSpacing: 2.0,
+        //mainAxisSpacing: 2.0,
+      ),
+      itemCount: box.length,
+      itemBuilder: (BuildContext context, int index) {
+        final data = box.get(index);
+        // print('in image ui ' + data.toString());
+        ImageModel imageModel = ImageModel.maptoimagemodel(data);
+        return InkWell(
+          onTap: () {
+            print('click in image view');
+            if (provider.cheakInternet.toString() == 'true') {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => NoInternet()));
+            } else {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PicListView(index)));
+            }
+          },
+          child: Column(children: [
+            Expanded(
+              child: Card(
+                child: CachedNetworkImage(
+                  imageUrl: imageModel.thumbnailUrl.toString(),
+                  placeholder: (context, url) =>
+                      Center(child: new CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Center(
+                    child: Image.asset('asset/images/nointernet.png'),
                   ),
-                );
-              },
-            );
-          }
-        });
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            //Expanded(child: Text(imageModel.title.toString())),
+          ]),
+        );
+      },
+    );
   }
 }
